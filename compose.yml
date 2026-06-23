@@ -1,42 +1,60 @@
 ---
 services:
   db:
-    image: krishnagurram/pyapp:dbimage
+    image: krishnagurrm/pyapp:db_image
+    deploy:
+      replicas: 1
     ports:
       - "3306:3306"
+    networks:
+      - mynetwork
+
+  auth_service:
+    image: krishnagurrm/pyapp:auth_image
     deploy:
       replicas: 1
-  auth_service:
-    image: krishnagurram/pyapp:authimage
     ports:
       - "5001:5001"
-    deploy:
-      replicas: 1
+    networks:
+      - mynetwork
     depends_on:
       - db
+    
+
   book_service:
-    image: krishnagurram/pyapp:bookimage
-    ports:
-      - "5002:5002"
+    image: krishnagurrm/pyapp:book_image
     deploy:
       replicas: 1
+    ports:
+      - "5002:5002"
+    networks:
+      - mynetwork
     depends_on:
       - db
   borrow_service:
-    image: krishnagurram/pyapp:borrowimage
+    image: krishnagurrm/pyapp:borrow_image
+    deploy:
+      replicas: 1
     ports:
       - "5003:5003"
-    deploy:
-      replicas: 1
+    networks:
+      - mynetwork
     depends_on:
       - db
-  app_service:
-    image: krishnagurram/pyapp:appimage
-    ports:
-      - "5000:5000"
+
+  frontend:
+    image: krishnagurrm/pyapp:frontend
     deploy:
       replicas: 1
+    ports:
+      - "5000:5000"
+    networks:
+      - mynetwork
     depends_on:
-      - auth_service
-      - book_service
-      - borrow_service
+      - auth
+      - book
+      - borrow
+
+networks:
+  mynetwork:
+    driver: overlay
